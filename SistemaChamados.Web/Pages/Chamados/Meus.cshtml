@@ -1,0 +1,46 @@
+@page
+@model SistemaChamados.Web.Pages.Chamados.MeusModel
+@{
+    ViewData["Title"] = "Meus Chamados";
+    ViewData["PageTitle"] = "Meus Chamados";
+    ViewData["ActivePage"] = "Meus";
+}
+
+<div class="topbar">
+    <div class="search">
+        <input id="searchInput" type="text" placeholder="Buscar chamado..." />
+    </div>
+    <div class="center">
+        <a href="/Chamados/Novo" class="btn btn-primary">Novo Chamado</a>
+    </div>
+</div>
+
+<section class="card">
+    <div class="card-title">Meus Chamados</div>
+    <div class="tickets mt-2">
+        @if (Model.Chamados != null && Model.Chamados.Any())
+        {
+            @foreach (var chamado in Model.Chamados)
+            {
+                <div class="ticket">
+                    <div>
+                        <div style="font-weight:700;color:#e8fbff">@chamado.Titulo</div>
+                        <div class="meta small text-muted">
+                            ID #@chamado.Id — Criado em @chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:center">
+                        <div class="status @(chamado.Status == "Aguardando atribuição" ? "status-open" : chamado.Status == "Finalizado" ? "status-closed" : "")">
+                            @chamado.Status.ToUpper()
+                        </div>
+                        <a href="/Chamados/Detalhes?id=@chamado.Id" class="btn btn-ghost">Ver</a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty">Você ainda não tem chamados abertos.</div>
+        }
+    </div>
+</section>

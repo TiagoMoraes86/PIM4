@@ -1,0 +1,195 @@
+@page
+@model SistemaChamados.Web.Pages.Chamados.NovoModel
+@{
+    ViewData["Title"] = "Abrir Chamado";
+    ViewData["PageTitle"] = "Abrir Chamado";
+    ViewData["ActivePage"] = "Novo";
+}
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card" style="padding:18px;">
+            <div class="card-title">Novo Chamado</div>
+            
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="card" style="margin-bottom:12px; background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.15); color:#9ff0e8;">
+                    <div style="padding:10px; font-size:14px;">@Model.SuccessMessage</div>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="card" style="margin-bottom:12px; background: rgba(255,80,80,0.05); border-color: rgba(255,80,80,0.12); color:#ffd6d6;">
+                    <div style="padding:10px; font-size:14px;">@Model.ErrorMessage</div>
+                </div>
+            }
+
+            <form method="post">
+                <div class="mb-3">
+                    <label class="small text-muted">Título</label>
+                    <input asp-for="Titulo" id="titulo" class="input" required placeholder="Descreva o problema brevemente">
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-muted">Descrição</label>
+                    <textarea asp-for="Descricao" id="descricao" class="input" rows="5" placeholder="Detalhes do problema (opcional)"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-muted">Categoria</label>
+                    <select asp-for="Categoria" class="input" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Software">Software</option>
+                        <option value="Rede">Rede</option>
+                        <option value="E-mail">E-mail</option>
+                        <option value="Acesso">Acesso</option>
+                        <option value="Impressora">Impressora</option>
+                        <option value="Telefonia">Telefonia</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-muted">Prioridade</label>
+                    <select asp-for="Prioridade" class="input" required>
+                        <option value="Baixa">Baixa</option>
+                        <option value="Média" selected>Média</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Urgente">Urgente</option>
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Abrir Chamado</button>
+                    <a href="/Chamados/Meus" class="btn btn-ghost">Meus Chamados</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card" style="padding:18px;">
+            <div class="card-title">💡 Sugestões da IA</div>
+            <p class="small text-muted" style="margin-bottom:14px;">
+                Enquanto você digita, nossa IA busca soluções similares no banco de conhecimento.
+            </p>
+
+            <div id="sugestoesContainer">
+                <div class="empty" style="padding:20px; text-align:center; font-size:13px;">
+                    Digite a descrição do problema para ver sugestões...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let timeoutId = null;
+
+        // Função para buscar sugestões da IA
+        async function buscarSugestoes(descricao) {
+            if (!descricao || descricao.trim().length < 5) {
+                document.getElementById('sugestoesContainer').innerHTML = `
+                    <div class="empty" style="padding:20px; text-align:center; font-size:13px;">
+                        Digite pelo menos 5 caracteres para ver sugestões...
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                // Mostrar loading
+                document.getElementById('sugestoesContainer').innerHTML = `
+                    <div class="empty" style="padding:20px; text-align:center; font-size:13px;">
+                        🔍 Buscando soluções...
+                    </div>
+                `;
+
+                // Chamar API de FAQs
+                const response = await fetch(`/api/faqs/buscar?descricao=${encodeURIComponent(descricao)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar sugestões');
+                }
+
+                const faqs = await response.json();
+
+                if (!faqs || faqs.length === 0) {
+                    document.getElementById('sugestoesContainer').innerHTML = `
+                        <div class="empty" style="padding:20px; text-align:center; font-size:13px;">
+                            Nenhuma solução similar encontrada. Nosso time irá ajudá-lo!
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar sugestões
+                let html = '';
+                faqs.forEach((faq, index) => {
+                    const score = (faq.scoreSimilaridade * 100).toFixed(0);
+                    html += `
+                        <div class="card" style="margin-bottom:12px; background: linear-gradient(90deg, rgba(14,165,233,0.04), rgba(3,105,161,0.02)); border-color: rgba(14,165,233,0.1); padding:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
+                                <div style="font-weight:700; color:#9fe7ff; font-size:13px;">
+                                    ${escapeHtml(faq.pergunta)}
+                                </div>
+                                <div style="background: rgba(14,165,233,0.15); color:#8fd6f7; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;">
+                                    ${score}% match
+                                </div>
+                            </div>
+                            <div style="font-size:12px; color:#cfe9f6; line-height:1.5; margin-bottom:8px;">
+                                ${escapeHtml(faq.resposta).substring(0, 150)}${faq.resposta.length > 150 ? '...' : ''}
+                            </div>
+                            <div style="font-size:11px; color: rgba(210,235,245,0.6);">
+                                Categoria: ${escapeHtml(faq.categoria)} | Relevância: ${faq.relevancia}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('sugestoesContainer').innerHTML = html;
+
+            } catch (error) {
+                console.error('Erro ao buscar sugestões:', error);
+                document.getElementById('sugestoesContainer').innerHTML = `
+                    <div class="empty" style="padding:20px; text-align:center; font-size:13px; color:#ffd6d6;">
+                        Erro ao buscar sugestões. Tente novamente.
+                    </div>
+                `;
+            }
+        }
+
+        // Função para escapar HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Event listener para descrição
+        document.getElementById('descricao').addEventListener('input', function(e) {
+            clearTimeout(timeoutId);
+            const descricao = e.target.value;
+            
+            // Debounce de 800ms
+            timeoutId = setTimeout(() => {
+                buscarSugestoes(descricao);
+            }, 800);
+        });
+
+        // Também buscar quando o título mudar
+        document.getElementById('titulo').addEventListener('input', function(e) {
+            const titulo = e.target.value;
+            const descricao = document.getElementById('descricao').value;
+            const textoCompleto = titulo + ' ' + descricao;
+            
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                buscarSugestoes(textoCompleto);
+            }, 800);
+        });
+    </script>
+}

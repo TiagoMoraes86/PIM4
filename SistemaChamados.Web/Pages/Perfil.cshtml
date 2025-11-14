@@ -1,0 +1,24 @@
+@page
+@model SistemaChamados.Web.Pages.PerfilModel
+@{
+    ViewData["Title"] = "Perfil";
+    ViewData["PageTitle"] = "Perfil";
+    ViewData["ActivePage"] = "Perfil";
+}
+
+<div class="card" style="padding:18px;">
+    <div class="card-title">Meu Perfil</div>
+    <div class="mb-3">
+        <label class="small text-muted">Nome</label>
+        <input type="text" class="input" value="@Model.Nome" readonly>
+    </div>
+    <div class="mb-3">
+        <label class="small text-muted">E-mail</label>
+        <input type="email" class="input" value="@Model.Email" readonly>
+    </div>
+    <div class="mb-3">
+        <label class="small text-muted">Tipo de Usuário</label>
+        <input type="text" class="input" value="@Model.Tipo" readonly>
+    </div>
+    <button class="btn btn-ghost">Editar Perfil (Em breve)</button>
+</div>

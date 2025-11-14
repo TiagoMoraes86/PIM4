@@ -1,0 +1,168 @@
+@page
+@model SistemaChamados.Web.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-0">Bem-vindo, @Model.DashboardData.NomeUsuario!</h2>
+        <p class="text-muted">Visão geral do sistema de chamados</p>
+    </div>
+</div>
+
+<!-- Cards de Resumo -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card card-stat bg-primary-subtle">
+            <div class="card-body position-relative">
+                <div class="stat-label">Chamados Abertos</div>
+                <div class="stat-number text-primary">@Model.DashboardData.ChamadosAbertos</div>
+                <i class="bi bi-folder-open stat-icon text-primary"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-stat bg-info-subtle">
+            <div class="card-body position-relative">
+                <div class="stat-label">Em Análise</div>
+                <div class="stat-number text-info">@Model.DashboardData.ChamadosEmAnalise</div>
+                <i class="bi bi-hourglass-split stat-icon text-info"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-stat bg-success-subtle">
+            <div class="card-body position-relative">
+                <div class="stat-label">Finalizados (Mês)</div>
+                <div class="stat-number text-success">@Model.DashboardData.FinalizadosMes</div>
+                <i class="bi bi-check-circle stat-icon text-success"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-stat bg-warning-subtle">
+            <div class="card-body position-relative">
+                <div class="stat-label">Tempo Médio (h)</div>
+                <div class="stat-number text-warning">@Model.DashboardData.TempoMedioResolucaoHoras.ToString("F1")</div>
+                <i class="bi bi-clock stat-icon text-warning"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Chamados por Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartStatus"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Chamados por Mês</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartMensal"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Dados para o gráfico de pizza (Status)
+        const dadosStatus = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DashboardData.ChamadosPorStatus));
+        
+        // Dados para o gráfico de barras (Mensal)
+        const dadosMensal = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DashboardData.ChamadosPorMes));
+
+        // Gráfico de Pizza - Chamados por Status
+        const ctxStatus = document.getElementById('chartStatus').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'pie',
+            data: {
+                labels: dadosStatus.map(d => d.label),
+                datasets: [{
+                    data: dadosStatus.map(d => d.valor),
+                    backgroundColor: [
+                        '#0d6efd',
+                        '#198754',
+                        '#ffc107',
+                        '#dc3545',
+                        '#6c757d'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const item = dadosStatus[context.dataIndex];
+                                return `${item.label}: ${item.valor} (${item.percentual.toFixed(1)}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Barras - Chamados por Mês
+        const ctxMensal = document.getElementById('chartMensal').getContext('2d');
+        new Chart(ctxMensal, {
+            type: 'bar',
+            data: {
+                labels: dadosMensal.map(d => d.mesFormatado),
+                datasets: [
+                    {
+                        label: 'Total',
+                        data: dadosMensal.map(d => d.quantidade),
+                        backgroundColor: '#0d6efd'
+                    },
+                    {
+                        label: 'Finalizados',
+                        data: dadosMensal.map(d => d.finalizados),
+                        backgroundColor: '#198754'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

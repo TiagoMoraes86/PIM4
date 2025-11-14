@@ -1,0 +1,138 @@
+@page
+@model SistemaChamados.Web.Pages.Chamados.NovoModel
+@{
+    ViewData["Title"] = "Abrir Novo Chamado";
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Abrir Novo Chamado de Suporte</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título do Chamado *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="titulo" 
+                               name="titulo" 
+                               placeholder="Ex: Computador não liga" 
+                               required 
+                               maxlength="255">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição do Problema *</label>
+                        <textarea class="form-control" 
+                                  id="descricao" 
+                                  name="descricao" 
+                                  rows="5" 
+                                  placeholder="Descreva detalhadamente o problema..." 
+                                  required></textarea>
+                        <small class="text-muted">Digite sua descrição para ver sugestões de solução abaixo</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="categoria" class="form-label">Categoria *</label>
+                            <select class="form-select" id="categoria" name="categoria" required>
+                                <option value="">Selecione...</option>
+                                <option value="Hardware">Hardware</option>
+                                <option value="Software">Software</option>
+                                <option value="Rede">Rede</option>
+                                <option value="E-mail">E-mail</option>
+                                <option value="Acesso">Acesso</option>
+                                <option value="Impressora">Impressora</option>
+                                <option value="Telefonia">Telefonia</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="prioridade" class="form-label">Prioridade *</label>
+                            <select class="form-select" id="prioridade" name="prioridade" required>
+                                <option value="">Selecione...</option>
+                                <option value="Baixa">Baixa</option>
+                                <option value="Média">Média</option>
+                                <option value="Alta">Alta</option>
+                                <option value="Urgente">Urgente</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send me-2"></i>Registrar Chamado
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Possíveis Soluções (FAQ Dinâmica)</h6>
+            </div>
+            <div class="card-body" id="faqContainer">
+                <p class="text-muted text-center">
+                    <i class="bi bi-info-circle"></i><br>
+                    Digite a descrição do problema para ver sugestões automáticas
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const descricaoInput = document.getElementById('descricao');
+        const faqContainer = document.getElementById('faqContainer');
+
+        // Debounce para evitar muitas requisições
+        let timeoutId;
+        descricaoInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => buscarFAQs(), 500);
+        });
+
+        async function buscarFAQs() {
+            const descricao = descricaoInput.value.trim();
+            
+            if (descricao.length < 10) {
+                faqContainer.innerHTML = '<p class="text-muted text-center"><i class="bi bi-info-circle"></i><br>Digite mais detalhes para ver sugestões</p>';
+                return;
+            }
+
+            faqContainer.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm"></div> Buscando soluções...</div>';
+
+            try {
+                const response = await fetch(`/api/faqs/buscar?descricao=${encodeURIComponent(descricao)}`);
+                const faqs = await response.json();
+
+                if (faqs.length === 0) {
+                    faqContainer.innerHTML = '<p class="text-muted text-center">Nenhuma solução encontrada. Seu chamado será analisado por um técnico.</p>';
+                    return;
+                }
+
+                let html = '';
+                faqs.forEach(faq => {
+                    html += `
+                        <div class="faq-card border rounded p-3 mb-2">
+                            <div class="faq-question">${faq.pergunta}</div>
+                            <div class="faq-answer">${faq.resposta}</div>
+                            <small class="text-muted">Categoria: ${faq.categoria}</small>
+                        </div>
+                    `;
+                });
+
+                faqContainer.innerHTML = html;
+            } catch (error) {
+                faqContainer.innerHTML = '<p class="text-danger">Erro ao buscar soluções</p>';
+            }
+        }
+    </script>
+}

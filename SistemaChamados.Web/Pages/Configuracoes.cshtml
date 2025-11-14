@@ -1,0 +1,21 @@
+@page
+@{
+    ViewData["Title"] = "Configurações";
+    ViewData["PageTitle"] = "Configurações";
+    ViewData["ActivePage"] = "Configuracoes";
+}
+
+<div class="card" style="padding:18px;">
+    <div class="card-title">Configurações</div>
+    <div class="mb-3">
+        <label class="small text-muted">Tema</label>
+        <p class="text-muted small">Use o botão "Modo" no topo para alternar entre tema claro e escuro.</p>
+    </div>
+    <div class="mb-3">
+        <label class="small text-muted">Notificações</label>
+        <div>
+            <input type="checkbox" id="notif1"> <label for="notif1" class="small text-muted">E-mail ao atualizar chamado</label>
+        </div>
+    </div>
+    <button class="btn btn-primary">Salvar (Em breve)</button>
+</div>

@@ -1,0 +1,62 @@
+.
+├── ENTREGA_PROJETO.md
+├── GUIA_TESTES.md
+├── README.md
+├── README_WEB.md
+├── RESUMO_EXECUTIVO.md
+├── SistemaChamados.Tests
+│   ├── ChamadoTests.cs
+│   └── SistemaChamados.Tests.csproj
+├── SistemaChamados.Web
+│   ├── Controllers
+│   ├── Data
+│   ├── Models
+│   ├── Pages
+│   ├── Program.cs
+│   ├── Properties
+│   ├── Services
+│   ├── SistemaChamados.Web.csproj
+│   ├── appsettings.Development.json
+│   ├── appsettings.json
+│   └── wwwroot
+├── criar_paginas_restantes.sh
+├── estrutura_projeto.txt
+├── gerar_hashes.cs
+├── gerar_hashes.sh
+├── instalar_projeto.sh
+├── pimproj
+│   ├── Chamado.cs
+│   ├── ChamadoRepository.cs
+│   ├── DatabaseConnection.cs
+│   ├── FrmChamadosEmAberto.Designer.cs
+│   ├── FrmChamadosEmAberto.cs
+│   ├── FrmChamadosEmAberto.resx
+│   ├── FrmChamadosFinalizados.Designer.cs
+│   ├── FrmChamadosFinalizados.cs
+│   ├── FrmChamadosFinalizados.resx
+│   ├── FrmLogin.Designer.cs
+│   ├── FrmLogin.cs
+│   ├── FrmLogin.resx
+│   ├── FrmNovoChamado.Designer.cs
+│   ├── FrmNovoChamado.cs
+│   ├── FrmNovoChamado.resx
+│   ├── FrmPrincipal.Designer.cs
+│   ├── FrmPrincipal.cs
+│   ├── FrmPrincipal.resx
+│   ├── GerenciadorChamados.cs
+│   ├── GerenciadorUsuarios.cs
+│   ├── Interacao.cs
+│   ├── Program.cs
+│   ├── Usuario.cs
+│   ├── UsuarioComum.cs
+│   ├── UsuarioRepository.cs
+│   ├── pim.csproj
+│   ├── pim.csproj.user
+│   ├── pimproj.csproj
+│   ├── pimproj.csproj.user
+│   ├── tabelas.cs
+│   ├── testeppx.csproj
+│   └── testeppx.csproj.user
+└── pimproj.sln
+
+10 directories, 49 files

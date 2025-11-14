@@ -1,0 +1,110 @@
+@page
+@model SistemaChamados.Web.Pages.Chamados.DetalhesModel
+@{
+    ViewData["Title"] = $"Chamado #{Model.Chamado.Id}";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <a href="/Chamados/Meus" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Chamado #@Model.Chamado.Id</h5>
+                    <span class="@Model.Chamado.StatusBadgeClass">@Model.Chamado.Status</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h4>@Model.Chamado.Titulo</h4>
+                <p class="text-muted">@Model.Chamado.Descricao</p>
+                
+                @if (!string.IsNullOrEmpty(Model.Chamado.Solucao))
+                {
+                    <div class="alert alert-success">
+                        <strong><i class="bi bi-check-circle me-2"></i>Solução:</strong>
+                        <p class="mb-0">@Model.Chamado.Solucao</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Timeline de Interações</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    @foreach (var interacao in Model.Chamado.Interacoes)
+                    {
+                        <div class="timeline-item @(string.IsNullOrEmpty(interacao.Usuario) ? "system" : "")">
+                            <div class="timeline-content">
+                                <div class="timeline-time">
+                                    @interacao.DataHora.ToString("dd/MM/yyyy HH:mm")
+                                    @if (!string.IsNullOrEmpty(interacao.Usuario))
+                                    {
+                                        <span> - @interacao.Usuario</span>
+                                    }
+                                </div>
+                                <div>@interacao.Descricao</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Chamado.Status != "Finalizado")
+                {
+                    <hr>
+                    <form method="post">
+                        <input type="hidden" name="chamadoId" value="@Model.Chamado.Id" />
+                        <div class="mb-3">
+                            <label for="comentario" class="form-label">Adicionar Comentário</label>
+                            <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-chat-left-text me-2"></i>Adicionar Comentário
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Informações</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Categoria:</dt>
+                    <dd class="col-sm-7">@Model.Chamado.Categoria</dd>
+
+                    <dt class="col-sm-5">Prioridade:</dt>
+                    <dd class="col-sm-7"><span class="@Model.Chamado.PrioridadeBadgeClass">@Model.Chamado.Prioridade</span></dd>
+
+                    <dt class="col-sm-5">Solicitante:</dt>
+                    <dd class="col-sm-7">@Model.Chamado.Solicitante</dd>
+
+                    <dt class="col-sm-5">Técnico:</dt>
+                    <dd class="col-sm-7">@(Model.Chamado.Tecnico ?? "Não atribuído")</dd>
+
+                    <dt class="col-sm-5">Aberto em:</dt>
+                    <dd class="col-sm-7">@Model.Chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    @if (Model.Chamado.DataFechamento.HasValue)
+                    {
+                        <dt class="col-sm-5">Fechado em:</dt>
+                        <dd class="col-sm-7">@Model.Chamado.DataFechamento.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
