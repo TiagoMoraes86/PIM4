@@ -65,7 +65,8 @@ namespace SistemaChamados.Data
                             data_fechamento = @dataFechamento
                             WHERE id = @id";
 
-                        cmd.Parameters.AddWithValue("@tecnico", chamado.Tecnico ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@tecnico",
+                            string.IsNullOrEmpty(chamado.Tecnico) ? (object)DBNull.Value : chamado.Tecnico);
                         cmd.Parameters.AddWithValue("@status", chamado.Status);
                         cmd.Parameters.AddWithValue("@solucao", chamado.Solucao ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@dataFechamento",
@@ -287,7 +288,6 @@ namespace SistemaChamados.Data
                                 DateTime dataHora = Convert.ToDateTime(reader["data_hora"]);
                                 string descricao = reader["descricao"].ToString();
 
-                                // Usar o método que criamos para adicionar interações do banco
                                 chamado.AdicionarInteracaoDoBanco(dataHora, descricao);
                             }
                         }

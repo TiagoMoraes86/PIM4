@@ -26,36 +26,36 @@ namespace SistemaChamados
 
         private void AjustarPermissoes()
         {
-            
+
             if (pnlBotoes.Controls.Contains(btnAtribuirTecnico))
             {
                 pnlBotoes.Controls.Remove(btnAtribuirTecnico);
                 btnAtribuirTecnico.Dispose();
             }
 
-            
+
             btnInteragir.Location = new System.Drawing.Point((pnlBotoes.Width - btnInteragir.Width) / 2, 8);
 
             if (tipoUsuario == "usuario")
             {
-                
-                btnInteragir.Enabled = false;
-                
+
+                // btnInteragir.Enabled = false; // Removido para permitir que o usuário comum interaja, se necessário
+
                 dgvChamados.ReadOnly = true;
             }
             else if (tipoUsuario == "tecnico")
             {
-                
+
                 btnInteragir.Enabled = true;
             }
         }
 
         private void CarregarChamadosEmAberto()
         {
-            
+
             List<Chamado> chamadosEmAberto = GerenciadorChamados.GetInstancia().ObterChamadosEmAberto();
 
-            
+
             DataTable dt = new DataTable();
             dt.Columns.Add("ID", typeof(int));
             dt.Columns.Add("Título", typeof(string));
@@ -66,7 +66,7 @@ namespace SistemaChamados
             dt.Columns.Add("Técnico", typeof(string));
             dt.Columns.Add("Status", typeof(string));
 
-            
+
             foreach (Chamado chamado in chamadosEmAberto)
             {
                 dt.Rows.Add(
@@ -96,12 +96,14 @@ namespace SistemaChamados
                 if (chamado != null)
                 {
                     string novoStatus = "";
-                    if (chamado.Status == "Em análise")
+                    if (chamado.Status == "Aguardando atribuição")
+                        novoStatus = "Em análise";
+                    else if (chamado.Status == "Em análise")
                         novoStatus = "Em andamento";
                     else if (chamado.Status == "Em andamento")
                         novoStatus = "Finalizado";
                     else
-                        novoStatus = "Em análise";
+                        novoStatus = "Aguardando atribuição";
 
                     chamado.AlterarStatus(novoStatus);
 
@@ -139,7 +141,7 @@ namespace SistemaChamados
             {
                 int idChamado = Convert.ToInt32(dgvChamados.SelectedRows[0].Cells["ID"].Value);
                 MessageBox.Show($"Atribuindo técnico ao chamado ID: {idChamado}", "Atribuição", MessageBoxButtons.OK, MessageBoxIcon.Information);
-               
+
             }
             else
             {

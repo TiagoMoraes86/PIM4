@@ -2,8 +2,7 @@
 -- Script de Migrations - PIM IV
 -- Sistema de Chamados com IA e LGPD
 
--- Verificar se as tabelas base existem (do PIM III)
--- Se não existirem, criar
+-- Se não existirem, criar:
 
 -- Tabela de usuários (caso não exista)
 CREATE TABLE IF NOT EXISTS usuarios (

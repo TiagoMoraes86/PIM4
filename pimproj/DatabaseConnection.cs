@@ -5,7 +5,7 @@ namespace SistemaChamados.Data
 {
     public class DatabaseConnection
     {
-        // Verifique se estes dados correspondem à sua instalação do PostgreSQL
+        
         private static string connectionString = "Server=localhost;Port=5432;Database=pim;User Id=postgres;Password=2004;";
 
         public static NpgsqlConnection GetConnection()
